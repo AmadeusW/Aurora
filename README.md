@@ -1,5 +1,5 @@
-ProjectAurora
-=============
+Aurora
+======
 
 My take on Ambilight made with C# and C++/CLI
 
