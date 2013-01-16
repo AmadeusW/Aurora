@@ -1,0 +1,166 @@
+﻿<Window x:Class="AmadeusW.Ambilight.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:dataClasses="clr-namespace:AmadeusW.Ambilight.DataClasses"
+        xmlns:helpers="clr-namespace:AmadeusW.Ambilight.Helpers"
+        Title="Aurora" Height="500" Width="645" Loaded="Window_Loaded_1">
+
+    <Window.Resources>
+        <dataClasses:PresetModel x:Key="model" />
+        <helpers:SuffixConverter x:Key="SuffixConverter" />
+    </Window.Resources>
+
+    <DockPanel LastChildFill="True">
+        <Label Content="Project Aurora" FontStyle="Italic" FontWeight="Bold" FontSize="24" HorizontalAlignment="Left" DockPanel.Dock="Top" Margin="10"/>
+
+        <DockPanel DockPanel.Dock="Left" Width="200" Margin="10" LastChildFill="True">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" DockPanel.Dock="Bottom">
+                <Button Width="30" Height="30" IsEnabled="False"></Button>
+                <Button Width="30" Height="30" Name="LogicOffButton" Click="Button_Click_SetDevice" Tag="Off" Content="off"></Button>
+                <Button Width="30" Height="30" Name="LogicOnButton" Click="Button_Click_SetDevice" Tag="Teensy" Content="on"></Button>
+                <Button Width="30" Height="30" Name="LogicSimButton" Click="Button_Click_SetDevice" Tag="Simulator" Content="sim"></Button>
+            </StackPanel>
+            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" DockPanel.Dock="Bottom">
+                <TextBlock Name="ConnectionLabel" Text="Not connected"/>
+            </StackPanel>            
+            <ListBox x:Name="presetList" Height="300" ItemsSource="{Binding Presets, Source={StaticResource model}}" SelectionChanged="presetList_SelectionChanged">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Label Content="{Binding Name}" />
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>            
+        </DockPanel>
+
+        <TabControl Margin="10">
+            <TabItem Header="Preset">
+                <Grid Margin="10" Background="#FFFFFFFF">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="30"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="244*" MinWidth="150"/>
+                        <ColumnDefinition Width="243*" MinWidth="120"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Label Content="Preset name" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,2,0,2"/>
+                    <Label Content="Preset trigger (todo)" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,2,0,2"/>
+
+                    <TextBox Grid.Column="1" Grid.Row="0" TextWrapping="Wrap" Text="{Binding SelectedItem.Name, ElementName=presetList, Mode=TwoWay}" Width="120" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,6" FontWeight="Bold"/>
+                    <TextBox Grid.Column="1" Grid.Row="1" TextWrapping="Wrap" Text="{Binding SelectedItem.Trigger, ElementName=presetList, Mode=TwoWay}" Width="120" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,6" />
+                </Grid>
+            </TabItem>
+            
+            <TabItem Header="Screen sectors" Height="22" VerticalAlignment="Bottom" RequestBringIntoView="TabItem_RequestBringIntoView_1">
+                <Grid Margin="10" Background="#FFFFFFFF">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="200"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="244*" MinWidth="150"/>
+                        <ColumnDefinition Width="243*" MinWidth="120"/>
+                    </Grid.ColumnDefinitions>
+                    <Label Content="Sectors per side edge" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,2,0,2"/>
+                    <Label Content="Sectors per top edge" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,2,0,2"/>
+                    <Label Content="Sectors per bottom edge" Grid.Row="2" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,2,0,2"/>
+                    <Label Content="Depth of edge sectors" Grid.Row="3" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,2,0,2"/>
+                    <Label Content="Depth of horizontal edges" Grid.Row="4" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,2,0,2"/>
+
+                    <TextBox Grid.Column="1" Grid.Row="0" TextWrapping="Wrap" Text="{Binding SelectedItem.VerticalSectors, ElementName=presetList, Mode=TwoWay}" Width="120" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,6" />
+                    <TextBox Grid.Column="1" Grid.Row="1" TextWrapping="Wrap" Text="{Binding SelectedItem.TopSectors, ElementName=presetList, Mode=TwoWay}" Width="120" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,6" />
+                    <TextBox Grid.Column="1" Grid.Row="2" TextWrapping="Wrap" Text="{Binding SelectedItem.BottomSectors, ElementName=presetList, Mode=TwoWay}" Width="120" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,6" />
+                    <TextBox Grid.Column="1" Grid.Row="3" TextWrapping="Wrap" Text="{Binding SelectedItem.VerticalSectorWidth, ElementName=presetList, Mode=TwoWay, Converter={StaticResource SuffixConverter}, ConverterParameter='px'}" Width="120" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,6" />
+                    <TextBox Grid.Column="1" Grid.Row="4" TextWrapping="Wrap" Text="{Binding SelectedItem.HorizontalSectorHeight, ElementName=presetList, Mode=TwoWay, Converter={StaticResource SuffixConverter}, ConverterParameter='px'}" Width="120" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,6" />
+                    
+                    <Canvas Name="SectorPreview" Grid.ColumnSpan="2" Grid.Row="5" Margin="10"/>
+                </Grid>
+            </TabItem>
+            
+            <TabItem Header="Colors">
+                <Grid Margin="10" Background="#FFFFFFFF">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="30"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="244*" MinWidth="150"/>
+                        <ColumnDefinition Width="243*" MinWidth="120"/>
+                    </Grid.ColumnDefinitions>
+                    <Label Content="Color adjustment:" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,2"/>
+                    <Label Content="Red" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,2,0,2"/>
+                    <Label Content="Green" Grid.Row="2" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,2,0,2"/>
+                    <Label Content="Blue" Grid.Row="3" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,2,0,2"/>
+
+                    <Label Content="Dark screen behavior:" Grid.Row="4" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,2"/>
+                    <Label Content="Minimum color" Grid.Row="5" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,2,0,2"/>
+                    <Label Content="Enhance darkness" Grid.Row="6" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,2,0,2"/>
+
+                    <Label Content="Bright screen behavior:" Grid.Row="7" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                    <Label Content="Maximum color" Grid.Row="8" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,2,0,2"/>
+                    <Label Content="Enhance flash" Grid.Row="9" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,2,0,2"/>
+
+                    <Label Content="Monotone screen behavior:" Grid.Row="10" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,2"/>
+                    <Label Content="Enhance colors" Grid.Row="11" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,2,0,2"/>
+                    <TextBox Grid.Column="1" Grid.Row="1" TextWrapping="Wrap" Text="{Binding SelectedItem.MaxRed, ElementName=presetList, Mode=TwoWay, Converter={StaticResource SuffixConverter}, ConverterParameter='%'}" Width="120" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,6" Name="MaxRed" GotFocus="TextBoxGotFocus" LostFocus="TextBoxLostFocus" />
+                    <TextBox Grid.Column="1" Grid.Row="2" TextWrapping="Wrap" Text="{Binding SelectedItem.MaxGreen, ElementName=presetList, Mode=TwoWay, Converter={StaticResource SuffixConverter}, ConverterParameter='%'}" Width="120" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,6" Name="MaxGreen" GotFocus="TextBoxGotFocus" LostFocus="TextBoxLostFocus" />
+                    <TextBox Grid.Column="1" Grid.Row="3" TextWrapping="Wrap" Text="{Binding SelectedItem.MaxBlue, ElementName=presetList, Mode=TwoWay, Converter={StaticResource SuffixConverter}, ConverterParameter='%'}" Width="120" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,6" Name="MaxBlue" GotFocus="TextBoxGotFocus" LostFocus="TextBoxLostFocus" />
+
+                    <TextBox x:Name="MinColor" Grid.Column="1" Grid.Row="5" TextWrapping="Wrap" Text="{Binding SelectedItem.MinColor.HexValue, ElementName=presetList, Mode=TwoWay}" Width="120" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,6" GotFocus="TextBoxGotFocus" LostFocus="TextBoxLostFocus" />
+                    <TextBox x:Name="MinColorDuration" Grid.Column="1" Grid.Row="6" TextWrapping="Wrap" Text="{Binding SelectedItem.DarkEnhanceDuration, ElementName=presetList, Mode=TwoWay, Converter={StaticResource SuffixConverter}, ConverterParameter='ms'}" Width="120" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,6" GotFocus="TextBoxGotFocus" LostFocus="TextBoxLostFocus" />
+
+                    <TextBox x:Name="MaxColor" Grid.Column="1" Grid.Row="8" TextWrapping="Wrap" Text="{Binding SelectedItem.MaxColor.HexValue, ElementName=presetList, Mode=TwoWay}" Width="120" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,6" GotFocus="TextBoxGotFocus" LostFocus="TextBoxLostFocus" />
+                    <TextBox x:Name="MaxColorDuration" Grid.Column="1" Grid.Row="9" TextWrapping="Wrap" Text="{Binding SelectedItem.FlashEnhanceDuration, ElementName=presetList, Mode=TwoWay, Converter={StaticResource SuffixConverter}, ConverterParameter='ms'}" Width="120" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,6" GotFocus="TextBoxGotFocus" LostFocus="TextBoxLostFocus" />
+
+                    <TextBox Grid.Column="1" Grid.Row="11" TextWrapping="Wrap" Text="{Binding SelectedItem.MonotoneEnhance, ElementName=presetList, Mode=TwoWay, Converter={StaticResource SuffixConverter}, ConverterParameter='ms'}" Width="120" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,6" GotFocus="TextBoxGotFocus" LostFocus="TextBoxLostFocus" />
+                </Grid>
+            </TabItem>
+            
+            <TabItem Header="Performance">
+                <Grid Margin="10" Background="#FFFFFFFF">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="30"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="244*" MinWidth="150"/>
+                        <ColumnDefinition Width="243*" MinWidth="120"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Label Content="Update frequency" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,2,0,2"/>
+                    <Label Content="Average over every nth pixel" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,2,0,2"/>
+                    <Label Content="Test performance" Grid.Row="3" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,2,0,2"/>
+                    <Label Content="Result of 50 iterations:" Grid.Row="4" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,2,0,2"/>
+
+                    <TextBox Grid.Column="1" Grid.Row="0" TextWrapping="Wrap" Text="{Binding SelectedItem.Framerate, ElementName=presetList, Mode=TwoWay, Converter={StaticResource SuffixConverter}, ConverterParameter='fps'}" Width="120" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,6" />
+                    <TextBox Grid.Column="1" Grid.Row="1" TextWrapping="Wrap" Text="{Binding SelectedItem.AveragingParam, ElementName=presetList, Mode=TwoWay}" Width="120" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,6" />
+
+                    <Button Grid.Column="1" Grid.Row="3" Content="Measure now" Width="120" HorizontalAlignment="Left" VerticalAlignment="Center" Click="PerformanceButtonClick" />
+                    <Label Name="PerformanceResult"  Content="Not measured" Grid.Row="4" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,2,0,2"/>
+                </Grid>
+            </TabItem>
+            
+        </TabControl>
+
+
+
+    </DockPanel>
+</Window>

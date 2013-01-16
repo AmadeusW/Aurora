@@ -1,0 +1,9 @@
+﻿<Window x:Class="AmadeusW.Ambilight.DeviceDriver.SimulatedDriverOutput"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="SimulatedDriverOutput" Height="300" Width="300" Loaded="Window_Loaded_1" SizeChanged="Window_SizeChanged_1">
+    <Grid>
+        <Canvas x:Name="SimulatorCanvas" Margin="5" />
+
+    </Grid>
+</Window>
