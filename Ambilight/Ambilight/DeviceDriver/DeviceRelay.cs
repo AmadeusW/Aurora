@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using AmadeusW.Ambilight.DataClasses;
@@ -12,6 +13,13 @@ namespace AmadeusW.Ambilight.DeviceDriver
         private readonly byte[] _buffer;
         private readonly byte[] _header;
         private Driver _dd;
+
+        #endregion
+
+        #region Events
+
+        public event EventHandler NotifyLogicAboutError;
+        public event EventHandler<AmbilightEventArgs> NotifyLogicAboutMessage;
 
         #endregion
 
@@ -38,7 +46,7 @@ namespace AmadeusW.Ambilight.DeviceDriver
             switch (requestedDriver)
             {
                 case AvailableDrivers.Teensy:
-                    _dd = new TeensyDriver();
+                    _dd = new TeensyDriver(NotifyLogicAboutMessage);
                     _dd.Initialize();
                     break;
                 case AvailableDrivers.Simulator:
@@ -97,7 +105,16 @@ namespace AmadeusW.Ambilight.DeviceDriver
             _buffer[i++] = 0;
             _buffer[i] = 0;
 
-            _dd.SendData(_buffer);
+            try
+            {
+                _dd.SendData(_buffer);
+            }
+            catch (Exception)
+            {
+                NotifyLogicAboutError(this, null);
+                Disconnect();
+                throw;
+            }
 
             // Also, write the raw output.
             /*

@@ -22,20 +22,21 @@
             </StackPanel>
             <StackPanel Orientation="Vertical" HorizontalAlignment="Center" DockPanel.Dock="Bottom">
                 <TextBlock Name="ConnectionLabel" Text="Not connected"/>
-            </StackPanel>            
+            </StackPanel>
             <ListBox x:Name="presetList" Height="300" ItemsSource="{Binding Presets, Source={StaticResource model}}" SelectionChanged="presetList_SelectionChanged">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <Label Content="{Binding Name}" />
                     </DataTemplate>
                 </ListBox.ItemTemplate>
-            </ListBox>            
+            </ListBox>
         </DockPanel>
 
         <TabControl Margin="10">
             <TabItem Header="Preset">
                 <Grid Margin="10" Background="#FFFFFFFF">
                     <Grid.RowDefinitions>
+                        <RowDefinition Height="30"/>
                         <RowDefinition Height="30"/>
                         <RowDefinition Height="30"/>
                     </Grid.RowDefinitions>
@@ -46,12 +47,18 @@
 
                     <Label Content="Preset name" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,2,0,2"/>
                     <Label Content="Preset trigger (todo)" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,2,0,2"/>
+                    <Label Content="Source" Grid.Row="2" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,2,0,2"/>
 
                     <TextBox Grid.Column="1" Grid.Row="0" TextWrapping="Wrap" Text="{Binding SelectedItem.Name, ElementName=presetList, Mode=TwoWay}" Width="120" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,6" FontWeight="Bold"/>
                     <TextBox Grid.Column="1" Grid.Row="1" TextWrapping="Wrap" Text="{Binding SelectedItem.Trigger, ElementName=presetList, Mode=TwoWay}" Width="120" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,6" />
+                    <StackPanel Grid.Column="1" Grid.Row="2" Orientation="Horizontal" Height="20">
+                        <RadioButton Width="60" x:Name="SourceGDI" GroupName="SourceRadioButtons" IsChecked="true">GDI</RadioButton>
+                        <RadioButton Width="60" x:Name="SourceConst" GroupName="SourceRadioButtons" IsChecked="false">Const</RadioButton>
+                        <RadioButton Width="60" x:Name="SourceDX11" IsEnabled="False" GroupName="SourceRadioButtons">DX11</RadioButton>
+                    </StackPanel>
                 </Grid>
             </TabItem>
-            
+
             <TabItem Header="Screen sectors" Height="22" VerticalAlignment="Bottom" RequestBringIntoView="TabItem_RequestBringIntoView_1">
                 <Grid Margin="10" Background="#FFFFFFFF">
                     <Grid.RowDefinitions>
@@ -77,11 +84,11 @@
                     <TextBox Grid.Column="1" Grid.Row="2" TextWrapping="Wrap" Text="{Binding SelectedItem.BottomSectors, ElementName=presetList, Mode=TwoWay}" Width="120" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,6" />
                     <TextBox Grid.Column="1" Grid.Row="3" TextWrapping="Wrap" Text="{Binding SelectedItem.VerticalSectorWidth, ElementName=presetList, Mode=TwoWay, Converter={StaticResource SuffixConverter}, ConverterParameter='px'}" Width="120" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,6" />
                     <TextBox Grid.Column="1" Grid.Row="4" TextWrapping="Wrap" Text="{Binding SelectedItem.HorizontalSectorHeight, ElementName=presetList, Mode=TwoWay, Converter={StaticResource SuffixConverter}, ConverterParameter='px'}" Width="120" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,6" />
-                    
+
                     <Canvas Name="SectorPreview" Grid.ColumnSpan="2" Grid.Row="5" Margin="10"/>
                 </Grid>
             </TabItem>
-            
+
             <TabItem Header="Colors">
                 <Grid Margin="10" Background="#FFFFFFFF">
                     <Grid.RowDefinitions>
@@ -130,7 +137,7 @@
                     <TextBox Grid.Column="1" Grid.Row="11" TextWrapping="Wrap" Text="{Binding SelectedItem.MonotoneEnhance, ElementName=presetList, Mode=TwoWay, Converter={StaticResource SuffixConverter}, ConverterParameter='ms'}" Width="120" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,6" GotFocus="TextBoxGotFocus" LostFocus="TextBoxLostFocus" />
                 </Grid>
             </TabItem>
-            
+
             <TabItem Header="Performance">
                 <Grid Margin="10" Background="#FFFFFFFF">
                     <Grid.RowDefinitions>
@@ -157,7 +164,7 @@
                     <Label Name="PerformanceResult"  Content="Not measured" Grid.Row="4" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,2,0,2"/>
                 </Grid>
             </TabItem>
-            
+
         </TabControl>
 
 

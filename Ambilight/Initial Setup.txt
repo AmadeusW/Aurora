@@ -1,0 +1,7 @@
+1. Install arduino-1.0.2
+2. Go to Windows 8 Metro "More PC Settings", then to Advanced Startup. This will restart the computer. Select option that allows for unsigned drivers to be installed.
+3. Run teensyduino.exe as administrator. Install the Teensy drivers
+4. Make sure arduino-1.0.2 has the Teensy drivers selected
+5. In arduino-1.0.2 verify the firmware and upload it to Teensy
+6. In Tensy app, check Automatic Mode. This way, whenever a button is pressed, Teensy restarts.
+7. When Teensy is restarted, it should flash red, green and then blue. It should do it every time a button is pressed (see step 6)

@@ -81,8 +81,8 @@ namespace AmadeusW.Ambilight.DataClasses
             m_VerticalSectors = 6;
             m_TopSectors = 7;
             m_BottomSectors = 6;
-            m_VerticalSectorWidth = 350;
-            m_HorizontalSectorHeight = 350;
+            m_VerticalSectorWidth = 300;
+            m_HorizontalSectorHeight = 300;
         }
 
         /// <summary>

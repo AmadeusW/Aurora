@@ -13,9 +13,11 @@ namespace AmadeusW.Ambilight.ScreenshotLogic
     public enum DisplayStates
     {
         Win,
+        Const,
         DX9,
         DX11,
-        OpenGL
+        OpenGL,
+        Null
     };
 
     public class LogicManager
@@ -58,6 +60,12 @@ namespace AmadeusW.Ambilight.ScreenshotLogic
 
         #endregion
 
+        #region Events
+
+        public event EventHandler<AmbilightEventArgs> NotifyGUI;
+
+        #endregion
+
         #region Constructor
 
         public LogicManager()
@@ -68,10 +76,12 @@ namespace AmadeusW.Ambilight.ScreenshotLogic
             _scheduler = new Timer { Enabled = false };
             _scheduler.Elapsed += TimerElapsed;
 
-            _state = DisplayStates.Win;
+            _state = DisplayStates.Null;
             assignShooter();
 
             _relay = new DeviceRelay();
+            _relay.NotifyLogicAboutError += relayErrorEvent;
+            _relay.NotifyLogicAboutMessage += relayMessageEvent;
         }
 
         #endregion
@@ -126,6 +136,25 @@ namespace AmadeusW.Ambilight.ScreenshotLogic
 
         #endregion
 
+        #region Event Handlers
+
+        // TODO: have some event that will be raised by the relay in case of errors
+        // or in any case, to forward messages to the GUI
+        private void relayErrorEvent(object sender, EventArgs e)
+        {
+            _paused = true;
+            // Update GUI message
+            relayMessageEvent(this, new AmbilightEventArgs(AmbilightEventArgs.AmbilightEventActions.UpdateStatus, "Connection error"));
+        }
+
+        private void relayMessageEvent(object sender, AmbilightEventArgs e)
+        {
+            // Update GUI message
+            NotifyGUI(sender, e);
+        }
+
+        #endregion
+
         #region Working
 
         private void assignShooter()
@@ -140,6 +169,9 @@ namespace AmadeusW.Ambilight.ScreenshotLogic
             {
                 case DisplayStates.Win:
                     _shooter = new ScreenshotLogicCPP.ShooterGDI();
+                    break;
+                case DisplayStates.Const:
+                    _shooter = new ScreenshotLogicCPP.ShooterConst();
                     break;
                 default:
                     _shooter = new ScreenshotLogicCPP.ShooterNull();
@@ -160,6 +192,18 @@ namespace AmadeusW.Ambilight.ScreenshotLogic
 
             _scheduler.Enabled = false;
             _canStart = true;
+
+            // TODO: this is an ugly hack. Create a way to convey more information to the shooter
+            if (_shooter.GetType() == typeof(ScreenshotLogicCPP.ShooterConst))
+            {
+                _queuedPreset.AveragingParam = 0;
+                _queuedPreset.AveragingParam += (byte)_queuedPreset.MaxRed;
+                _queuedPreset.AveragingParam = _queuedPreset.AveragingParam << 8;
+                _queuedPreset.AveragingParam += (byte)_queuedPreset.MaxGreen;
+                _queuedPreset.AveragingParam = _queuedPreset.AveragingParam << 8;
+                _queuedPreset.AveragingParam += (byte)_queuedPreset.MaxBlue;
+                _queuedPreset.AveragingParam = _queuedPreset.AveragingParam << 8;
+            }
 
             _shooter.SetPreset(_queuedPreset.Sectors, _queuedPreset.AveragingParam, _queuedPreset.MinColor.Brightness); // TODO: maybe just call assignShooter next time.
             _relay.SetPreset(_queuedPreset);
@@ -232,7 +276,7 @@ namespace AmadeusW.Ambilight.ScreenshotLogic
 
             for (int i = 0; i < outputColors.Length; i++)
             {
-                if (true)
+                if (false)
                 {
                     // Increase brightness of two brightest colors from a trio
                     if (i%3 == 0)
@@ -353,6 +397,16 @@ namespace AmadeusW.Ambilight.ScreenshotLogic
         public void RestoreNormalOperation()
         {
             m_OverridenOutput = false;
+        }
+
+        internal void TryUpdateShooter(bool useGDIShooter)
+        {
+            DisplayStates newState = useGDIShooter ? DisplayStates.Win : DisplayStates.Const;
+            if (newState != _state)
+            {
+                _state = newState;
+                assignShooter();
+            }
         }
     }
 }

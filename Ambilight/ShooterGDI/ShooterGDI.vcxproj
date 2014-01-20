@@ -84,6 +84,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="Sector.h" />
     <ClInclude Include="Shooter.h" />
+    <ClInclude Include="ShooterConst.h" />
     <ClInclude Include="ShooterGDI.h" />
     <ClInclude Include="ShooterNull.h" />
     <ClInclude Include="Stdafx.h" />
@@ -91,6 +92,7 @@
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp" />
     <ClCompile Include="Sector.cpp" />
+    <ClCompile Include="ShooterConst.cpp" />
     <ClCompile Include="ShooterGDI.cpp" />
     <ClCompile Include="ShooterNull.cpp" />
     <ClCompile Include="Stdafx.cpp">

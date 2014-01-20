@@ -54,6 +54,7 @@ namespace AmadeusW.Ambilight
         private void Window_Loaded_1(object sender, RoutedEventArgs e)
         {
             _logic = new LogicManager();
+            _logic.NotifyGUI += logicToGUIEventHandler;
             getScreenInfo();
 
             // TODO: this should go into appropriate function
@@ -80,6 +81,20 @@ namespace AmadeusW.Ambilight
                 presetList.SelectedItem = presetList.Items[0];
         }
 
+        private void logicToGUIEventHandler(object sender, AmbilightEventArgs e)
+        {
+            // Make sure we are in GUI thread
+            if (e.Action == AmbilightEventArgs.AmbilightEventActions.UpdateStatus)
+            {
+                Dispatcher.BeginInvoke(new Action(() => updateConnectionLabel(e.Details)));
+            }
+        }
+
+        private void updateConnectionLabel(string newText)
+        {
+            ConnectionLabel.Text = newText;
+        }
+
         private void PresetPropertyChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)
         {
             if (propertyChangedEventArgs.PropertyName == "TopSectors" || propertyChangedEventArgs.PropertyName == "BottomSectors" || propertyChangedEventArgs.PropertyName == "VerticalSectors")
@@ -101,6 +116,9 @@ namespace AmadeusW.Ambilight
             // Make sure that the list of sectors has been created and is up to date
             updateSectors(selectedPreset);
 
+            // See if we need to change the source
+            _logic.TryUpdateShooter(SourceGDI.IsChecked.Value);
+
             // Begin the program logic
             try
             {
@@ -108,15 +126,15 @@ namespace AmadeusW.Ambilight
                 {
                     case "Teensy":
                         _logic.ApplyPreset(selectedPreset, AvailableDrivers.Teensy);
-                        ConnectionLabel.Text = "Connected to the device";
+                        updateConnectionLabel("Connecting to the device");
                         break;
                     case "Simulator":
                         _logic.ApplyPreset(selectedPreset, AvailableDrivers.Simulator);
-                        ConnectionLabel.Text = "Connected to the simulator";
+                        updateConnectionLabel("Connected to the simulator");
                         break;
                     default:
                         _logic.ApplyPreset(selectedPreset, AvailableDrivers.Off);
-                        ConnectionLabel.Text = "Not connected";
+                        updateConnectionLabel("Not connected");
                         break;
                 }
             }
@@ -201,24 +219,18 @@ namespace AmadeusW.Ambilight
 
             int verticalSectorHeight = screenHeight / selectedPreset.VerticalSectors;
             int topSectorWidth = (screenWidth - 2 * selectedPreset.VerticalSectorWidth) / selectedPreset.TopSectors;
-            int bottomSectorWidth = (screenWidth - 2 * selectedPreset.VerticalSectorWidth) / selectedPreset.BottomSectors;
+            int bottomSectorWidth = ((int)(0.8 * screenWidth) - 2 * selectedPreset.VerticalSectorWidth) / selectedPreset.BottomSectors;
+            int bottomSectorGap = (int) (0.1*screenWidth);
 
             if (2*selectedPreset.VerticalSectors + selectedPreset.TopSectors + selectedPreset.BottomSectors != Config.numberOfLeds)
             {
                 return;
             }
 
-            // Left edge
-            for (i = 0; i < selectedPreset.VerticalSectors; i++)
+            // Bottom edge, right side
+            for (i = selectedPreset.BottomSectors / 2; i < selectedPreset.BottomSectors; i++)
             {
-                selectedPreset.Sectors[currentSector] = new ScreenshotLogicCPP.Sector(0, i * verticalSectorHeight, selectedPreset.VerticalSectorWidth, verticalSectorHeight, currentSector);
-                currentSector++;
-            }
-
-            // Bottom edge
-            for (i = 0; i < selectedPreset.BottomSectors; i++)
-            {
-                selectedPreset.Sectors[currentSector] = new ScreenshotLogicCPP.Sector(selectedPreset.VerticalSectorWidth + i * bottomSectorWidth, screenHeight - selectedPreset.HorizontalSectorHeight, bottomSectorWidth, selectedPreset.HorizontalSectorHeight, currentSector);
+                selectedPreset.Sectors[currentSector] = new ScreenshotLogicCPP.Sector(2 * bottomSectorGap + selectedPreset.VerticalSectorWidth + i * bottomSectorWidth, screenHeight - selectedPreset.HorizontalSectorHeight, bottomSectorWidth, selectedPreset.HorizontalSectorHeight, currentSector);
                 currentSector++;
             }
 
@@ -233,6 +245,20 @@ namespace AmadeusW.Ambilight
             for (i = 0; i < selectedPreset.TopSectors; i++)
             {
                 selectedPreset.Sectors[currentSector] = new ScreenshotLogicCPP.Sector(screenWidth - selectedPreset.VerticalSectorWidth - (i + 1) * topSectorWidth, 0, topSectorWidth, selectedPreset.HorizontalSectorHeight, currentSector);
+                currentSector++;
+            }
+
+            // Left edge
+            for (i = 0; i < selectedPreset.VerticalSectors; i++)
+            {
+                selectedPreset.Sectors[currentSector] = new ScreenshotLogicCPP.Sector(0, i * verticalSectorHeight, selectedPreset.VerticalSectorWidth, verticalSectorHeight, currentSector);
+                currentSector++;
+            }
+
+            // Bottom edge, left side
+            for (i = 0; i < selectedPreset.BottomSectors / 2; i++)
+            {
+                selectedPreset.Sectors[currentSector] = new ScreenshotLogicCPP.Sector(selectedPreset.VerticalSectorWidth + i * bottomSectorWidth, screenHeight - selectedPreset.HorizontalSectorHeight, bottomSectorWidth, selectedPreset.HorizontalSectorHeight, currentSector);
                 currentSector++;
             }
         }

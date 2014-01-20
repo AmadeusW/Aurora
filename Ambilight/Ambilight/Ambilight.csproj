@@ -80,6 +80,9 @@
     <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Hardcodet.Wpf.TaskbarNotification">
+      <HintPath>..\packages\Hardcodet.Wpf.TaskbarNotification.1.0.4.0\lib\net40\Hardcodet.Wpf.TaskbarNotification.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -100,6 +103,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AmbilightEventArgs.cs" />
     <Compile Include="DeviceDriver\DeviceRelay.cs" />
     <Compile Include="DeviceDriver\Driver.cs" />
     <Compile Include="DeviceDriver\NullDriver.cs" />
@@ -109,6 +113,7 @@
     </Compile>
     <Compile Include="DeviceDriver\TeensyDriver.cs" />
     <Compile Include="Helpers\SuffixConverter.cs" />
+    <Compile Include="Helpers\TrayIconGenerator.cs" />
     <Compile Include="ScreenshotLogic\LogicManager.cs" />
     <Compile Include="ScreenshotLogic\PlatformSpecificHelpers\PlatFormInvokeGDI32.cs" />
     <Compile Include="ScreenshotLogic\PlatformSpecificHelpers\PlatformInvokeUSER32.cs" />
@@ -152,6 +157,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -183,6 +189,12 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\TrayIconOff.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\TrayIconOn.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
