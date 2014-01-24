@@ -67,11 +67,11 @@ namespace AmadeusW.Ambilight.DataClasses
             m_Trigger = "always on";
             m_Compensation = new Helpers.HexColor("ffffff");
             m_MaxRed = 100;
-            m_MaxGreen = 90;
-            m_MaxBlue = 50;
-            m_MinColor = new Helpers.HexColor("202020");
+            m_MaxGreen = 80;
+            m_MaxBlue = 40;
+            m_MinColor = new Helpers.HexColor("000000");
             m_DarkEnhanceDuration = 200;
-            m_MaxColor = new Helpers.HexColor("dfdfdf");
+            m_MaxColor = new Helpers.HexColor("ffffff");
             m_FlashEnhanceDuration = 20;
             m_MonotoneEnhance = 2;
             m_Framerate = 18;
