@@ -164,3 +164,6 @@ pip-log.txt
 
 # TFS
 *.gz
+
+# Roslyn
+*.sln.ide
