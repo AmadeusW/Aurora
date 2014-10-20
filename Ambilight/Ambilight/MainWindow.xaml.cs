@@ -21,6 +21,7 @@ using AmadeusW.Ambilight.DeviceDriver;
 using AmadeusW.Ambilight.Helpers;
 using AmadeusW.Ambilight.ScreenshotLogic;
 using AmadeusW.Ambilight.ScreenshotLogic.PlatformSpecificHelpers;
+using AmadeusW.Ambilight.Commands;
 
 namespace AmadeusW.Ambilight
 {
@@ -40,11 +41,15 @@ namespace AmadeusW.Ambilight
 
         #endregion
 
+        public PresetActionCommand PresetActionCommand { get; set; }
+
         #region Constructor
 
         public MainWindow()
         {
             InitializeComponent();
+            PresetActionCommand = new PresetActionCommand(this);
+            DataContext = this; // TODO: remove this and use MVVM patterns.
         }
 
         #endregion
@@ -57,28 +62,46 @@ namespace AmadeusW.Ambilight
             _logic.NotifyGUI += logicToGUIEventHandler;
             getScreenInfo();
 
+            initializePresets();
+
+            // Select first item
+            if (presetList.Items[0] != null)
+                presetList.SelectedItem = presetList.Items[0];
+        }
+
+        private void initializePresets()
+        {
             // TODO: this should go into appropriate function
             _presets = this.Resources["model"] as PresetModel;
             if (_presets == null)
             {
                 throw new NullReferenceException("Could not connect to the preset model");
             }
-            Preset p1 = new Preset();
-            Preset p2 = new Preset();
-            // Make p1 a high performance preset
-            p1.Name = "Low footprint";
-            p1.Framerate = 4;
-            p1.AveragingParam = 3;
-            // P2 should have appropriate names
-            p2.Name = "High framerate";
-            p1.PropertyChanged += PresetPropertyChanged;
-            p2.PropertyChanged += PresetPropertyChanged;
-            _presets.Presets.Add(p1); // For now 
-            _presets.Presets.Add(p2); // For now 
 
-            // Select first item
-            if (presetList.Items[0] != null)
-                presetList.SelectedItem = presetList.Items[0];
+            var loadedPresets = Preset.LoadPresets();
+            foreach (var loadedPreset in loadedPresets)
+            {
+                _presets.Presets.Add(loadedPreset);
+            }
+
+            // IF nothing was loaded, show defaults
+            if (_presets.Presets.Count == 0)
+            {
+                Preset p1 = new Preset();
+                Preset p2 = new Preset();
+                // Make p1 a high performance preset
+                p1.Name = "Low footprint";
+                p1.Framerate = 4;
+                p1.AveragingParam = 3;
+                // P2 should have appropriate names
+                p2.Name = "High framerate";
+                p1.PropertyChanged += PresetPropertyChanged;
+                p2.PropertyChanged += PresetPropertyChanged;
+                _presets.Presets.Add(p1); // For now 
+                _presets.Presets.Add(p2); // For now 
+                p1.Save();
+                p2.Save();
+            }
         }
 
         private void logicToGUIEventHandler(object sender, AmbilightEventArgs e)
@@ -88,11 +111,6 @@ namespace AmadeusW.Ambilight
             {
                 Dispatcher.BeginInvoke(new Action(() => updateConnectionLabel(e.Details)));
             }
-        }
-
-        private void updateConnectionLabel(string newText)
-        {
-            ConnectionLabel.Text = newText;
         }
 
         private void PresetPropertyChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)
@@ -204,6 +222,11 @@ namespace AmadeusW.Ambilight
         }
 
         #endregion
+
+        private void updateConnectionLabel(string newText)
+        {
+            ConnectionLabel.Text = newText;
+        }
 
         private void getScreenInfo()
         {
@@ -334,6 +357,29 @@ namespace AmadeusW.Ambilight
             _logic.RestoreNormalOperation();
         }
 
+        internal void ExecutePresetAction(string action)
+        {
+            Preset selectedPreset = presetList.SelectedItem as Preset;
+            if (selectedPreset == null)
+            {
+                throw new InvalidOperationException("Unable to apply preset: Selected preset is invalid");
+            }
 
+            if (action == "Save")
+            {
+                selectedPreset.Save();
+            }
+            else if (action == "Duplicate")
+            {
+                Preset newPreset = new Preset(selectedPreset);
+                newPreset.Name += " copy";
+                newPreset.Save();
+                _presets.Presets.Add(newPreset);
+            }
+            else if (action == "Remove")
+            {
+                selectedPreset.Remove();
+            }
+        }
     }
 }

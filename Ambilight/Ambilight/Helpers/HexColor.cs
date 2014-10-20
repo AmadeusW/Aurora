@@ -13,6 +13,14 @@ namespace AmadeusW.Ambilight.Helpers
 
         #region Constructor
 
+        public HexColor()
+        {
+            m_blue = 0;
+            m_green = 0;
+            m_red = 0;
+            m_brightness = 0;
+        }
+
         public HexColor(string value)
         {
             // TODO: Do some checks here

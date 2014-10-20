@@ -104,6 +104,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="AmbilightEventArgs.cs" />
+    <Compile Include="Commands\PresetActionCommand.cs" />
     <Compile Include="DeviceDriver\DeviceRelay.cs" />
     <Compile Include="DeviceDriver\Driver.cs" />
     <Compile Include="DeviceDriver\NullDriver.cs" />

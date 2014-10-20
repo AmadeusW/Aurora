@@ -39,6 +39,7 @@
                         <RowDefinition Height="30"/>
                         <RowDefinition Height="30"/>
                         <RowDefinition Height="30"/>
+                        <RowDefinition Height="100"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="244*" MinWidth="150"/>
@@ -55,6 +56,11 @@
                         <RadioButton Width="60" x:Name="SourceGDI" GroupName="SourceRadioButtons" IsChecked="true">GDI</RadioButton>
                         <RadioButton Width="60" x:Name="SourceConst" GroupName="SourceRadioButtons" IsChecked="false">Const</RadioButton>
                         <RadioButton Width="60" x:Name="SourceDX11" IsEnabled="False" GroupName="SourceRadioButtons">DX11</RadioButton>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Grid.Row="3" Orientation="Vertical" VerticalAlignment="Bottom">
+                        <Button Command="{Binding PresetActionCommand}" CommandParameter="Save">Save changes</Button>
+                        <Button Command="{Binding PresetActionCommand}" CommandParameter="Duplicate">Duplicate this preset</Button>
+                        <Button Command="{Binding PresetActionCommand}" CommandParameter="Remove">Remove this preset</Button>
                     </StackPanel>
                 </Grid>
             </TabItem>

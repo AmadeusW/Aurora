@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Xml.Serialization;
 using AmadeusW.Ambilight;
 using AmadeusW.Ambilight.Helpers;
 
 namespace AmadeusW.Ambilight.DataClasses
 {
+    [Serializable]
     public class Preset : INotifyPropertyChanged
     {
         #region GUI bound fields
@@ -145,6 +148,71 @@ namespace AmadeusW.Ambilight.DataClasses
         public override string ToString()
         {
             return Name;
+        }
+
+        #endregion
+
+        #region Serialization and deserialization
+
+        private const string EXTENSION = ".xml";
+
+        private static string GetStorageLocation()
+        {
+            string rootDirectory = Environment.GetEnvironmentVariable("LocalAppData");
+            string localDirectory = @"Aurora\presets\";
+            string targetLocation = Path.Combine(rootDirectory, localDirectory);
+            if (!Directory.Exists(targetLocation))
+            {
+                Directory.CreateDirectory(targetLocation);
+            }
+            return targetLocation;
+        }
+
+        internal void Save()
+        {
+            // Insert code to set properties and fields of the object.
+            XmlSerializer mySerializer = new XmlSerializer(typeof(Preset));
+            // To write to a file, create a StreamWriter object.
+            StreamWriter myWriter = new StreamWriter(GetStorageLocation() + Name + EXTENSION);
+            mySerializer.Serialize(myWriter, this);
+            myWriter.Close();
+        }
+
+        internal void Remove()
+        {
+            var targetPath = GetStorageLocation() + Name + EXTENSION;
+            if (File.Exists(targetPath))
+            {
+                File.Delete(targetPath);
+            }
+        }
+
+        internal static IEnumerable<Preset> LoadPresets()
+        {
+            var files = Directory.EnumerateFiles(GetStorageLocation());
+            foreach (var file in files)
+            {
+                if (file.EndsWith(EXTENSION))
+                {
+                    Preset deserializedPreset;
+                    try
+                    {
+                        XmlSerializer mySerializer = new XmlSerializer(typeof(Preset));
+                        // To read the file, create a FileStream.
+                        FileStream myFileStream = new FileStream(file, FileMode.Open);
+                        // Call the Deserialize method and cast to the object type.
+                        deserializedPreset = (Preset)mySerializer.Deserialize(myFileStream);
+                    }
+                    catch
+                    {
+                        // Try another file
+                        continue;
+                    }
+
+                    // Add it to the collection
+                    yield return deserializedPreset;
+                }
+            }
         }
 
         #endregion
