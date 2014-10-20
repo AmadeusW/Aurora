@@ -59,6 +59,8 @@ namespace AmadeusW.Ambilight.DataClasses
 
         #endregion
 
+        private string _nameFromFile;
+
         #region Constructor
 
         /// <summary>
@@ -170,17 +172,33 @@ namespace AmadeusW.Ambilight.DataClasses
 
         internal void Save()
         {
-            // Insert code to set properties and fields of the object.
-            XmlSerializer mySerializer = new XmlSerializer(typeof(Preset));
-            // To write to a file, create a StreamWriter object.
-            StreamWriter myWriter = new StreamWriter(GetStorageLocation() + Name + EXTENSION);
-            mySerializer.Serialize(myWriter, this);
-            myWriter.Close();
+            try
+            {
+                // Insert code to set properties and fields of the object.
+                XmlSerializer mySerializer = new XmlSerializer(typeof(Preset));
+                // To write to a file, create a StreamWriter object.
+                StreamWriter myWriter = new StreamWriter(GetStorageLocation() + Name + EXTENSION);
+                mySerializer.Serialize(myWriter, this);
+                myWriter.Close();
+            }
+            catch
+            {
+                // Don't continue
+                return;
+            }
+            // Now that we've saved the preset, see if it was loaded from a different filename.
+            // If that's true, it means that this preset got renamed. Remove old file.
+            if (_nameFromFile != Name)
+            {
+                Remove(checkOriginalName: true);
+            }
         }
 
-        internal void Remove()
+        internal void Remove(bool checkOriginalName = false)
         {
-            var targetPath = GetStorageLocation() + Name + EXTENSION;
+            var targetPath = GetStorageLocation()
+                            + (checkOriginalName ? _nameFromFile : Name)
+                            + EXTENSION;
             if (File.Exists(targetPath))
             {
                 File.Delete(targetPath);
@@ -202,6 +220,8 @@ namespace AmadeusW.Ambilight.DataClasses
                         FileStream myFileStream = new FileStream(file, FileMode.Open);
                         // Call the Deserialize method and cast to the object type.
                         deserializedPreset = (Preset)mySerializer.Deserialize(myFileStream);
+                        // This bit will be useful when user renames the preset.
+                        deserializedPreset._nameFromFile = deserializedPreset.Name;
                     }
                     catch
                     {
