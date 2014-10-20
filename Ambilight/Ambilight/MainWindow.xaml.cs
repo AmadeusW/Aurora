@@ -378,6 +378,7 @@ namespace AmadeusW.Ambilight
             }
             else if (action == "Remove")
             {
+                _presets.Presets.Remove(selectedPreset);
                 selectedPreset.Remove();
             }
         }
